@@ -16,12 +16,20 @@ const int BACKLIGHT_INTRO_TIME  = 3000; // initial screen fade in
 const int TRANSITION_FADE_TIME  = 1000; // screen transition (each direction, out and in) - total is 2x value + 200ms
 const int NOTIFIER_SPIN_TIME    = 6000; // how long a spinner shows
 
+const int BRIGHTNESS_LEVEL_MIN      = 10;   // 10 prevents full blackout
+const int BRIGHTNESS_LEVEL_MAX      = 100;  // 100 is max
 
 //////////////// There should be no need to ////////////////
 //////////////// change any of the values   ////////////////
 //////////////// past this point            ////////////////
 
-// Meter parts
+typedef struct struct_brightness {
+  int daytime;
+  int nighttime;
+  bool is_dimmed;
+} struct_brightness;
+
+// Meter partss -- currently unused, coming soon
 typedef struct struct_icon_parts {
     float min;              // Min range value
     float max;              // Max range value
@@ -31,9 +39,22 @@ typedef struct struct_icon_parts {
     char unit[4];           // eg V, psi, °C
   } struct_icon_parts;
 
-// Tracking attributes
-uint8_t dimmer_lv;   // dimmed level from 0 - 9
-uint8_t current_brightness; // follows the current 
+// Dimmer values
+lv_timer_t* brightness_fade_timer = nullptr;
+
+int fade_start = 0;
+int fade_end = 0;
+int fade_current = 0;
+int fade_step = 0;
+int fade_steps_total = 10;
+int fade_steps_done = 0;
+
+int* fade_brightness_ptr = nullptr;
+const char* fade_key = nullptr;
+
+struct_brightness Brightness;
+const int BRIGHTNESS_DAYTIME_DEFAULT = 70;
+const int BRIGHTNESS_NIGHTTIME_DEFAULT = 50;
 
 // Data from the buttons
 typedef struct struct_buttons {
@@ -48,7 +69,7 @@ typedef struct struct_set_channel {
   uint8_t channel_id;
 } struct_set_channel;
 
-// IDs for gauges displays
+// IDs for gauges displays -- currently unused, coming soon
 #define GAUGE_SMALL_SPEEDO     0
 #define GAUGE_SMALL_LEVELS     1
 #define GAUGE_SMALL_LOCATION   2
@@ -63,17 +84,19 @@ typedef struct struct_set_channel {
 #define FLAG_FUEL               6
 #define FLAG_ONLINE             7
 
-// Console button IDs
+// Console button IDs -- currently unused, coming soon
 #define BUTTON_SETTING          0
 #define BUTTON_MODE             1
 #define BUTTON_BRIGHTNESS_UP    2
 #define BUTTON_BRIGHTNESS_DOWN  3
 
-// Button events
+// Button eventss -- currently unused, coming soon
 #define CLICK_EVENT_CLICK       0
 #define CLICK_EVENT_DOUBLE      1
 #define CLICK_EVENT_HOLD        2
 
+// THE FOLLOWING IS STILL TBC
+//
 // Greater or less than for alerts
 // bool ABOVE = true;
 // bool BELOW = false;
